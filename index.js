@@ -41,7 +41,7 @@ const PORT = process.env.PORT || 4000;
 })();
 
 app.use(data);
-app.use('/api/corona', coronaRoutes);
+app.use('/api', coronaRoutes);
 
 app.listen(PORT);
 
