@@ -5,6 +5,15 @@ const data = require('./middlewares/data-api');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+const globalStat = require("./db/globalStat");
+
+// globalStat.getGlobalStat().then((res)=> {
+//     console.log(res);
+// });
+
+data();
+
+
 
 (function () {
     Object.prototype.renameProperty = function (oldName, newName) {
@@ -32,16 +41,15 @@ const PORT = process.env.PORT || 4000;
                 .replace('_', '');
         });
     };
-
-    app.use(function (req, res, next) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
-        next();
-    });
 })();
 
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    next();
+});
 
-app.use(data);
+
 app.use('/api', coronaRoutes);
 
 app.listen(PORT);

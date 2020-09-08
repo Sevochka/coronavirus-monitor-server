@@ -1,10 +1,9 @@
 const api = require('../api/virustracker');
-const globalStatHelper = require('../helpers/calculate');
+const calculateHelper = require('../helpers/calculate');
 
-const test = require("../db/test");
-const data = require('../db/data');
+const globalStatModel = require("../db/globalStat");
 
-let timer;
+
 const uselessProperties = ['source'];
 
 const removeUselessProperties = (obj) => {
@@ -16,31 +15,30 @@ const removeUselessProperties = (obj) => {
     return obj;
 };
 
-module.exports = async function (req, res, next) {
+module.exports = async function () {
 
+        let {globalStats, countryTotals, fullTimeline} = await api();
 
-    if (!timer) {
-        timer = 1;
+        removeUselessProperties(calculateHelper(globalStats, countryTotals, fullTimeline));
 
-        let {globalStats, countryTotals} = await api();
-
-        removeUselessProperties(globalStatHelper(globalStats, countryTotals))
-
-        // test.addGroup(removeUselessProperties(globalStatHelper(globalStats, countryTotals)))
-        //     .then((el) => {
-        //         console.log(el)
-        //     }).catch((err) => {
-        //     console.log(err)
-        // });
-
-        test.getGlobalStat()
+        globalStatModel.updateGlobalStat(calculateHelper(globalStats, countryTotals))
             .then((el) => {
                 console.log(el)
             }).catch((err) => {
             console.log(err)
         });
-    } else {
 
-    }
-    next();
+    // test.addGroup(removeUselessProperties(globalStatHelper(globalStats, countryTotals)))
+    //     .then((el) => {
+    //         console.log(el)
+    //     }).catch((err) => {
+    //     console.log(err)
+    // });
+
+    // test.getGlobalStat()
+    //     .then((el) => {
+    //         console.log(el)
+    //     }).catch((err) => {
+    //     console.log(err)
+    // });
 };
