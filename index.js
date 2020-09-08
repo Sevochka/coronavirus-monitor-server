@@ -40,6 +40,7 @@ const PORT = process.env.PORT || 4000;
     });
 })();
 
+
 app.use(data);
 app.use('/api', coronaRoutes);
 
