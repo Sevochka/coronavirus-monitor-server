@@ -1,7 +1,9 @@
 const {selectData, changeData} = require('sqlite3-simple-api');
 
+const id = 1;
 const createGroupTable =
     `CREATE TABLE IF NOT EXISTS 'GlobalStats' (
+    'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,
     'totalCases' INTEGER NOT NULL,
     'totalRecovered' INTEGER,
     'totalUnresolved' INTEGER NOT NULL,
@@ -16,32 +18,22 @@ changeData(createGroupTable);
 
 exports.getGlobalStat = function () {
     const sql =
-            `SELECT G.totalCases, G.totalRecovered, G.totalUnresolved, G.totalDeaths, G.totalNewCasesToday, 
+        `SELECT G.totalCases, G.totalRecovered, G.totalUnresolved, G.totalDeaths, G.totalNewCasesToday, 
             G.totalNewDeathsToday, G.totalActiveCases, G.totalSeriousCases, G.totalAffectedCountries FROM GlobalStats as G`;
-        return selectData(sql, true);
+    return selectData(sql, true);
 };
 
 exports.updateGlobalStat = async function (globalStat) {
-    const {totalCases, totalRecovered, totalUnresolved, totalDeaths, totalNewCasesToday, totalNewDeathsToday,
-        totalActiveCases, totalSeriousCases, totalAffectedCountries} = globalStat;
+    const {
+        totalCases, totalRecovered, totalUnresolved, totalDeaths, totalNewCasesToday, totalNewDeathsToday,
+        totalActiveCases, totalSeriousCases, totalAffectedCountries
+    } = globalStat;
 
-    const check = await selectData('SELECT * FROM GlobalStats');
-
-    let sql;
-    if (!check.length){
-        sql =
-            `INSERT INTO GlobalStats (totalCases, totalRecovered, totalUnresolved, totalDeaths, 
+    const sql =
+        `INSERT OR REPLACE INTO GlobalStats (id, totalCases, totalRecovered, totalUnresolved, totalDeaths, 
         totalNewCasesToday, totalNewDeathsToday, totalActiveCases, totalSeriousCases, totalAffectedCountries) 
-        VALUES ('${totalCases}', '${totalRecovered}', '${totalUnresolved}', '${totalDeaths}', 
+        VALUES ('${id}', '${totalCases}', '${totalRecovered}', '${totalUnresolved}', '${totalDeaths}', 
         '${totalNewCasesToday}', '${totalNewDeathsToday}', '${totalActiveCases}', '${totalSeriousCases}', '${totalAffectedCountries}')`;
-    } else {
-        sql =
-            `UPDATE GlobalStats SET totalCases = ${totalCases}, totalRecovered = ${totalRecovered}, 
-        totalUnresolved = ${totalUnresolved}, totalDeaths = ${totalDeaths}, 
-        totalNewCasesToday = ${totalNewCasesToday}, totalNewDeathsToday = ${totalNewDeathsToday}, 
-        totalActiveCases = ${totalActiveCases}, totalSeriousCases = ${totalSeriousCases}, totalAffectedCountries = ${totalAffectedCountries}`;
-    }
-
 
     return changeData(sql);
 };

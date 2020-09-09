@@ -13,8 +13,6 @@ const globalStat = require("./db/globalStat");
 
 data();
 
-
-
 (function () {
     Object.prototype.renameProperty = function (oldName, newName) {
         if (oldName === newName) {

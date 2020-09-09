@@ -2,31 +2,28 @@ const api = require('../api/virustracker');
 const calculateHelper = require('../helpers/calculate');
 
 const globalStatModel = require("../db/globalStat");
-
-
-const uselessProperties = ['source'];
-
-const removeUselessProperties = (obj) => {
-    Object.keys(obj).forEach((key) => {
-        if (uselessProperties.includes(key)) {
-            delete obj[key];
-        }
-    });
-    return obj;
-};
+const countryTotalsModel = require("../db/countryTotals");
 
 module.exports = async function () {
+    // let {globalStats, countryTotals, fullTimeline} = await api();
+    // const {globalStatsCalculated, countryTotalsArray} = calculateHelper(globalStats, countryTotals, fullTimeline);
+    //
+    // await globalStatModel.updateGlobalStat(globalStatsCalculated);
+    //
+    // for (const item of countryTotalsArray) {
+    //    await countryTotalsModel.updateCountryTotals(item);
+    // }
 
-        let {globalStats, countryTotals, fullTimeline} = await api();
+    console.log("Заполнение успешно БД завершено")
 
-        removeUselessProperties(calculateHelper(globalStats, countryTotals, fullTimeline));
 
-        globalStatModel.updateGlobalStat(calculateHelper(globalStats, countryTotals))
-            .then((el) => {
-                console.log(el)
-            }).catch((err) => {
-            console.log(err)
-        });
+
+
+
+
+    // countryTotalsArray.forEach((el) => {
+    //     countryTotalsModel.updateCountryTotals(el);
+    // })
 
     // test.addGroup(removeUselessProperties(globalStatHelper(globalStats, countryTotals)))
     //     .then((el) => {
