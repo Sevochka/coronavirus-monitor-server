@@ -1,28 +1,37 @@
 const api = require('../api/virustracker');
-const globalStatHelper =  require('../helpers/globalStat');
+const calculateHelper = require('../helpers/calculate');
 
-let timer;
-const uselessProperties = ['source'];
+const globalStatModel = require("../db/globalStat");
+const countryTotalsModel = require("../db/countryTotals");
+const countriesTimelineModel = require("../db/countriesTimeline");
 
-const removeUselessProperties = (obj) => {
-    Object.keys(obj).forEach((key) => {
-        if (uselessProperties.includes(key)){
-            delete obj[key];
-        }
-    });
-    return obj;
-};
+module.exports = async function () {
+    const api = await api();
 
-module.exports = async function (req, res, next) {
-    if (!timer) {
-        timer = 1;
-
-        let {globalStats, countryTotals} = await api();
-
-        req.globalStats = removeUselessProperties(globalStatHelper(globalStats, countryTotals));
-
-    } else {
-
+    if (api){
+        return false;
     }
-    next();
+    const {globalStats, countryTotals, fullTimeline} = api;
+
+    const {globalStatsCalculated, countryTotalsArray, countriesTimeline, globalTimeline} = calculateHelper(globalStats, countryTotals, fullTimeline);
+
+    await globalStatModel.updateGlobalStat(globalStatsCalculated);
+
+    for (const item of countryTotalsArray) {
+       await countryTotalsModel.updateCountryTotals(item);
+    }
+
+    const timeKeys = Object.keys(countriesTimeline);
+    const json = JSON.stringify(globalTimeline);
+    await countriesTimelineModel.updateCountriesTimeline('ALL', json);
+
+    for (const key of timeKeys) {
+        countriesTimeline[key] = countriesTimeline[key].sort((a,b) => {
+            return Date.parse(a.date) - Date.parse(b.date);
+        });
+        const json = JSON.stringify(countriesTimeline[key]);
+        await countriesTimelineModel.updateCountriesTimeline(key, json);
+    }
+    console.log("Заполнение успешно БД завершено");
+    return true;
 };

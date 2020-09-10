@@ -5,7 +5,6 @@ const data = require('./middlewares/data-api');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-
 (function () {
     Object.prototype.renameProperty = function (oldName, newName) {
         if (oldName === newName) {
@@ -32,18 +31,28 @@ const PORT = process.env.PORT || 4000;
                 .replace('_', '');
         });
     };
-
-    app.use(function (req, res, next) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
-        next();
-    });
 })();
 
-app.use(data);
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    next();
+});
+
 app.use('/api', coronaRoutes);
 
 app.listen(PORT);
 
+const timeout = (flag) => {
+    if(flag){
+        setTimeout(() => {
+            timeout(data());
+        }, 24*60*60*1000);
+    } else{
+        setTimeout(() => {
+            timeout(data())
+        }, 10000);
+    }
+};
 
-
+timeout(data());
