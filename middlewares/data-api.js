@@ -1,4 +1,4 @@
-const api = require('../api/virustracker');
+const apiVirus = require('../api/virustracker');
 const calculateHelper = require('../helpers/calculate');
 
 const globalStatModel = require("../db/globalStat");
@@ -6,9 +6,9 @@ const countryTotalsModel = require("../db/countryTotals");
 const countriesTimelineModel = require("../db/countriesTimeline");
 
 module.exports = async function () {
-    const api = await api();
+    const api = await apiVirus();
 
-    if (api){
+    if (!api){
         return false;
     }
     const {globalStats, countryTotals, fullTimeline} = api;
@@ -17,13 +17,18 @@ module.exports = async function () {
 
     await globalStatModel.updateGlobalStat(globalStatsCalculated);
 
+    console.log("updateGlobalStat");
+
     for (const item of countryTotalsArray) {
        await countryTotalsModel.updateCountryTotals(item);
     }
+    console.log("updateCountryTotals");
 
     const timeKeys = Object.keys(countriesTimeline);
     const json = JSON.stringify(globalTimeline);
     await countriesTimelineModel.updateCountriesTimeline('ALL', json);
+
+    console.log("updateCountriesTimeline");
 
     for (const key of timeKeys) {
         countriesTimeline[key] = countriesTimeline[key].sort((a,b) => {
