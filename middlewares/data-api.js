@@ -6,17 +6,24 @@ const countryTotalsModel = require("../db/countryTotals");
 const countriesTimelineModel = require("../db/countriesTimeline");
 
 module.exports = async function () {
-    let {globalStats, countryTotals, fullTimeline} = await api();
-    const {globalStatsCalculated, countryTotalsArray, countriesTimeline} = calculateHelper(globalStats, countryTotals, fullTimeline);
+    const api = await api();
 
-    // await globalStatModel.updateGlobalStat(globalStatsCalculated);
-    //
-    // for (const item of countryTotalsArray) {
-    //    await countryTotalsModel.updateCountryTotals(item);
-    // }
+    if (api){
+        return false;
+    }
+    const {globalStats, countryTotals, fullTimeline} = api;
 
+    const {globalStatsCalculated, countryTotalsArray, countriesTimeline, globalTimeline} = calculateHelper(globalStats, countryTotals, fullTimeline);
+
+    await globalStatModel.updateGlobalStat(globalStatsCalculated);
+
+    for (const item of countryTotalsArray) {
+       await countryTotalsModel.updateCountryTotals(item);
+    }
 
     const timeKeys = Object.keys(countriesTimeline);
+    const json = JSON.stringify(globalTimeline);
+    await countriesTimelineModel.updateCountriesTimeline('ALL', json);
 
     for (const key of timeKeys) {
         countriesTimeline[key] = countriesTimeline[key].sort((a,b) => {
@@ -25,25 +32,6 @@ module.exports = async function () {
         const json = JSON.stringify(countriesTimeline[key]);
         await countriesTimelineModel.updateCountriesTimeline(key, json);
     }
-
-    console.log("Заполнение успешно БД завершено")
-
-
-    // countryTotalsArray.forEach((el) => {
-    //     countryTotalsModel.updateCountryTotals(el);
-    // })
-
-    // test.addGroup(removeUselessProperties(globalStatHelper(globalStats, countryTotals)))
-    //     .then((el) => {
-    //         console.log(el)
-    //     }).catch((err) => {
-    //     console.log(err)
-    // });
-
-    // test.getGlobalStat()
-    //     .then((el) => {
-    //         console.log(el)
-    //     }).catch((err) => {
-    //     console.log(err)
-    // });
+    console.log("Заполнение успешно БД завершено");
+    return true;
 };

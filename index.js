@@ -5,14 +5,6 @@ const data = require('./middlewares/data-api');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-const globalStat = require("./db/globalStat");
-
-// globalStat.getGlobalStat().then((res)=> {
-//     console.log(res);
-// });
-
-data();
-
 (function () {
     Object.prototype.renameProperty = function (oldName, newName) {
         if (oldName === newName) {
@@ -47,10 +39,20 @@ app.use(function (req, res, next) {
     next();
 });
 
-
 app.use('/api', coronaRoutes);
 
 app.listen(PORT);
 
+const timeout = (flag) => {
+    if(flag){
+        setTimeout(() => {
+            timeout(data());
+        }, 24*60*60*1000);
+    } else{
+        setTimeout(() => {
+            timeout(data())
+        }, 10000);
+    }
+};
 
-
+timeout(data());

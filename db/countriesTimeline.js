@@ -5,6 +5,7 @@ const createCountriesTimeline =
     'code' TEXT NOT NULL PRIMARY KEY UNIQUE,
     'timeline' TEXT NOT NULL
     );`;
+
 changeData(createCountriesTimeline);
 
 exports.getCountryTimeline = function (code) {

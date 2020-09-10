@@ -1,5 +1,4 @@
 const uselessProperties = ['source', 'GB data saved', 'ash analysis', 'tokens'];
-const fs = require('fs');
 
 const removeUselessProperties = (obj) => {
     Object.keys(obj).forEach((key) => {
@@ -33,20 +32,9 @@ module.exports = function (globalStats, countryTotals, fullTimeline) {
     });
     globalStats.renamePropertiesToCamel();
 
-
     const timeData = removeUselessProperties(fullTimeline).data;
 
     const countriesTimeline = {};
-
-    // for (let i = 0; i < timeData.length; i++) {
-    //
-    //     for (let j = 0; j < ; j++) {
-    //
-    //     }
-    //
-    // }
-    
-    
 
     timeData.forEach((el, i) =>{
        const countryCode = el.countrycode;
@@ -57,20 +45,27 @@ module.exports = function (globalStats, countryTotals, fullTimeline) {
        countriesTimeline[countryCode].push(el);
    });
 
-
-    // Object.keys(countriesTimeline).forEach(key => {
-    //     countriesTimeline[key] = countriesTimeline[key].sort((a,b) => {
-    //         return Date.parse(a.date) - Date.parse(b.date);
-    //     })
-    // });
-    //
-    // console.log(countriesTimeline.RU);
-
-
+    const globalTimeline = Object.values(countriesTimeline).reduce((acc, curEl) => {
+            curEl.forEach((el) => {
+                let index = acc.findIndex(el2 => el.date === el2.date);
+                if (index !== -1) {
+                    acc[index] = {
+                        ...acc[index],
+                        cases: +el.cases + +acc[index].cases,
+                        deaths: +el.deaths + +acc[index].deaths,
+                        recovered: +el.recovered + +acc[index].recovered,
+                    }
+                } else {
+                    acc.push(el);
+                }
+            });
+            return acc;
+    }).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
 
     return {
         globalStatsCalculated: removeUselessProperties(Object.assign(globalStats, total)),
         countryTotalsArray,
-        countriesTimeline: countriesTimeline
+        countriesTimeline: countriesTimeline,
+        globalTimeline
     };
 };
