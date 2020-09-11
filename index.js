@@ -43,16 +43,23 @@ app.use('/api', coronaRoutes);
 
 app.listen(PORT);
 
-const timeout = (flag) => {
-    if(flag){
-        setTimeout(() => {
-            timeout(data());
-        }, 24*60*60*1000);
-    } else{
-        setTimeout(() => {
-            timeout(data())
-        }, 10000);
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const timeout = async (func) => {
+    console.log("Обновление");
+    const flag = await func();
+    if (flag) {
+        console.log("Отсчет начат");
+        await sleep(24*60*60*1000);
+        timeout(data);
+    } else {
+        console.log("Перезагрузка начата");
+        await sleep(10000);
+        timeout(data)
     }
 };
 
-timeout(data());
+timeout(data);
+
