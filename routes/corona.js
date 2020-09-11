@@ -14,13 +14,14 @@ router.get('/country-totals', async (req, res) => {
 });
 router.get('/country-totals/:code', async (req, res) => {
     const code = req.params.code;
-    const countryTotals = await countryModel.getCountryTotals(code);
+    const [countryTotals] = await countryModel.getCountryTotals(code);
     await res.json(countryTotals);
 });
 
 router.get('/country-timeline/:code', async (req, res) => {
     const code = req.params.code;
-    const countryTimeline = await countriesTimeline.getCountryTimeline(code);
+    const [countryTimeline] = await countriesTimeline.getCountryTimeline(code);
+    countryTimeline.timeline = await JSON.parse(countryTimeline.timeline);
     await res.json(countryTimeline);
 });
 
