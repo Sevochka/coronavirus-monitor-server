@@ -10,7 +10,7 @@ changeData(createCountriesTimeline);
 
 exports.getCountryTimeline = function (code) {
     const sql =
-        `SELECT * FROM CountriesTimeline WHERE code = '${code.toUpperCase()}'`;
+        `SELECT CountriesTimeline.timeline FROM CountriesTimeline WHERE code = '${code.toUpperCase()}'`;
     return selectData(sql);
 };
 

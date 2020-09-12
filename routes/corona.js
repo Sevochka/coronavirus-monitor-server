@@ -20,9 +20,8 @@ router.get('/country-totals/:code', async (req, res) => {
 
 router.get('/country-timeline/:code', async (req, res) => {
     const code = req.params.code;
-    const [countryTimeline] = await countriesTimeline.getCountryTimeline(code);
-    countryTimeline.timeline = await JSON.parse(countryTimeline.timeline);
-    await res.json(countryTimeline);
+    let [countryTimeline] = await countriesTimeline.getCountryTimeline(code);
+    await res.send(countryTimeline.timeline);
 });
 
 module.exports = router;
